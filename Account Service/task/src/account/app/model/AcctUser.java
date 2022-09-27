@@ -2,14 +2,13 @@ package account.app.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.validator.constraints.CodePointLength;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -34,6 +33,7 @@ public class AcctUser implements UserDetails {
 
     @NotBlank
     @Pattern(regexp = ".*@acme.com")
+    @ColumnTransformer(write = "LOWER(?)")
     private String email;
 
     @NotBlank
@@ -85,5 +85,9 @@ public class AcctUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

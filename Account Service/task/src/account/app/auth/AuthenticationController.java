@@ -1,20 +1,17 @@
 package account.app.auth;
 
+import account.app.exception.UserExistException;
 import account.app.model.AcctUser;
 import account.app.model.AcctUserProjection;
 import account.app.service.AcctUserService;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Controller
-@RequestMapping(path = "/auth")
+@RestController
+@RequestMapping(path = "/api/auth")
 public class AuthenticationController {
 
     private final SpelAwareProxyProjectionFactory spelAwareProxyProjectionFactory;
@@ -28,9 +25,12 @@ public class AuthenticationController {
 
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<AcctUserProjection> userSignup(@Valid @RequestBody AcctUser acctUser) {
-        AcctUserProjection user = spelAwareProxyProjectionFactory.createProjection(AcctUserProjection.class, acctUser);
-        userService.saveNewUser(user);
+    public ResponseEntity<AcctUserProjection> userSignup(@Valid @RequestBody AcctUser acctUser) throws UserExistException {
+        AcctUser savedUser = userService.saveNewUser(acctUser);
+        AcctUserProjection user = spelAwareProxyProjectionFactory.createProjection(AcctUserProjection.class, savedUser);
+
+
+
         return ResponseEntity.ok(user);
     }
 }

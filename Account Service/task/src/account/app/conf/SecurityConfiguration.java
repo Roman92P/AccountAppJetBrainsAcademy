@@ -26,14 +26,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.inMemoryAuthentication()
-//                .withUser("admin")
-//                .password("{noop}admin").authorities("ROLE_ADMIN");
-//    }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
@@ -48,14 +40,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable().headers().frameOptions().disable() // for Postman, the H2 console
                 .and()
                 .authorizeRequests() // manage access
-                .antMatchers(HttpMethod.POST,"/api/auth/singup").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyAuthority("ROLE_USER","ROLE_ACCOUNTANT", "ROLE_ADMINISTRATOR")
-                .antMatchers(HttpMethod.GET, "/api/empl/payment").hasAnyAuthority("ROLE_USER","ROLE_ACCOUNTANT")
-                .antMatchers(HttpMethod.POST, "/api/acct/payments").hasAuthority("ROLE_ACCOUNTANT")
-                .antMatchers(HttpMethod.PUT, "/api/acct/payments").hasAuthority("ROLE_ACCOUNTANT")
-                .antMatchers(HttpMethod.GET, "/api/admin/user").hasAuthority("ROLE_ADMINISTRATOR")
-                .antMatchers(HttpMethod.DELETE, "/api/admin/user").hasAuthority("ROLE_ADMINISTRATOR")
-                .antMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAuthority("ROLE_ADMINISTRATOR")
+                .antMatchers(HttpMethod.POST,"/api/auth/signup").permitAll()
+                .antMatchers("/actuator/shutdown").permitAll()
+                .anyRequest().authenticated()
+//                .antMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyAuthority("ROLE_USER","ROLE_ACCOUNTANT", "ROLE_ADMINISTRATOR")
+//                .antMatchers(HttpMethod.GET, "/api/empl/payment").hasAnyAuthority("ROLE_USER","ROLE_ACCOUNTANT")
+//                .antMatchers(HttpMethod.POST, "/api/acct/payments").hasAuthority("ROLE_ACCOUNTANT")
+//                .antMatchers(HttpMethod.PUT, "/api/acct/payments").hasAuthority("ROLE_ACCOUNTANT")
+//                .antMatchers(HttpMethod.GET, "/api/admin/user").hasAuthority("ROLE_ADMINISTRATOR")
+//                .antMatchers(HttpMethod.DELETE, "/api/admin/user").hasAuthority("ROLE_ADMINISTRATOR")
+//                .antMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAuthority("ROLE_ADMINISTRATOR")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
