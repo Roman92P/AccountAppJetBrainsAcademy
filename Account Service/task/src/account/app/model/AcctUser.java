@@ -4,14 +4,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.validator.constraints.CodePointLength;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,18 +24,21 @@ public class AcctUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank
+    @NotEmpty
     private String name;
 
-    @NotBlank
+    @NotEmpty
     private String lastname;
 
-    @NotBlank
+    @NotEmpty
     @Pattern(regexp = ".*@acme.com")
     @ColumnTransformer(write = "LOWER(?)")
     private String email;
 
-    @NotBlank
+
+
+    @Size(min = 12, message = "Password length must be 12 chars minimum!")
+    @NotEmpty
     private String password;
 
     public String getName() {
@@ -89,5 +91,16 @@ public class AcctUser implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "AcctUser{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
