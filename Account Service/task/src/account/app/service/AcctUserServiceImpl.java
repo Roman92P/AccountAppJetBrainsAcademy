@@ -34,6 +34,11 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
     }
 
     @Override
+    public Optional<AcctUser> getUserByEmail(String userEmail) {
+        return userRepo.findByEmail(userEmail);
+    }
+
+    @Override
     public AcctUser getAcctUserByName(String username) {
         Optional<AcctUser> byName = userRepo.findByName(username);
         return byName.get();

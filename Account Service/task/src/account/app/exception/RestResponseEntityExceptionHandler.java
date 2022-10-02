@@ -22,6 +22,32 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(value = {NegativeSalaryException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleNegativeSalaryException(NegativeSalaryException ex, WebRequest request){
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("Salary should be greater than zero!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {UserNotFoundException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex, WebRequest request){
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("Couldn't find user with email "+ex.getNotExistingUserEmail());
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(value = {UserExistException.class})
     @ResponseBody
     protected ResponseEntity<Object> handleUserExistException(UserExistException ex, WebRequest request){
