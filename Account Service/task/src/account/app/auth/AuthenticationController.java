@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,12 +46,9 @@ public class AuthenticationController {
     @PostMapping(value = "/changepass", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Object> userChangePassword(@Valid @RequestBody UserNewPassword userNewPassword, Principal principal, HttpServletRequest request) throws UserExistException, PasswordWasHackedException, UserChangesPasswordSamePasswordException {
-        logger.warn("New password: " + userNewPassword);
         String loggedUserName = principal.getName();
         AcctUser acctUserByName = userService.getAcctUserByName(loggedUserName);
         logger.warn("Logged user changing pswd: " + acctUserByName);
-        logger.warn("pswd: " + acctUserByName.getPassword());
-        logger.warn("pswd: " + userNewPassword.getNew_password());
         if (encoder.matches(userNewPassword.getNew_password(), acctUserByName.getPassword())) {
             throw new UserChangesPasswordSamePasswordException(request.getContextPath());
         }

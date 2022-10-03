@@ -35,8 +35,6 @@ public class AcctUser implements UserDetails {
     @ColumnTransformer(write = "LOWER(?)")
     private String email;
 
-
-
     @Size(min = 12, message = "Password length must be 12 chars minimum!")
     @NotEmpty
     private String password;

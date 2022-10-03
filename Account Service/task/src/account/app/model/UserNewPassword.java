@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 public class UserNewPassword implements Serializable {
 
-
     @NotEmpty
     @Length(min = 12, message = "Password length must be 12 chars minimum!")
     private String new_password;

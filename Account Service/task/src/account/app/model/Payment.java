@@ -14,19 +14,18 @@ import java.io.Serializable;
 @Data
 @Table(name = "payment",
         uniqueConstraints = {@UniqueConstraint(columnNames =
-                {"employee", "salary"})})
+                {"employee", "period"})})
 public class Payment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String employee;
-    private String period;
-    private long salary;
-
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "acctUserId")
     private AcctUser acctUser;
+    private String employee;
+    private String period;
+    private long salary;
 
     public String getEmployee() {
         return employee;

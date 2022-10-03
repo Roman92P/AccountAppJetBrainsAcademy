@@ -1,5 +1,6 @@
 package account.app.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -21,6 +23,32 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(value={DataIntegrityViolationException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(DataIntegrityViolationException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("User with same period exception!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={DateTimeException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(DateTimeException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("Provide correct date!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
 
     @ExceptionHandler(value = {NegativeSalaryException.class})
     @ResponseBody
@@ -99,6 +127,5 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         exceptionMessageResponse.setMessage(errorMessage);
         exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
         return ResponseEntity.badRequest().body(exceptionMessageResponse);
-        //return super.handleMethodArgumentNotValid(ex, headers, status, request);
     }
 }
