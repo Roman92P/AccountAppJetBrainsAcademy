@@ -3,16 +3,17 @@ package account.app.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.validator.constraints.CodePointLength;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -39,6 +40,24 @@ public class AcctUser implements UserDetails {
     @NotEmpty
     private String password;
 
+//    @Enumerated(EnumType.STRING)
+//    @ManyToMany
+//    @JoinTable(
+//            name = "acctUser_role",
+//            joinColumns = @JoinColumn(name = "acctUser_id"),
+//            inverseJoinColumns = @JoinColumn(name = "role_id")
+//    )
+    @ElementCollection
+    private List<ROLE> roles;
+
+    public List<ROLE> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<ROLE> roles) {
+        this.roles = roles;
+    }
+
     public String getName() {
         return name;
     }
@@ -54,7 +73,7 @@ public class AcctUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-//        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toString())));
+        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toString())));
         return authorities;
     }
 

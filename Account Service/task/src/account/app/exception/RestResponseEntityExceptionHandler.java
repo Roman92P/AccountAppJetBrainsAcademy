@@ -20,9 +20,75 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(value={AcctServiceAdminCantHaveBusinessRolesException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(AcctServiceAdminCantHaveBusinessRolesException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setMessage("The user cannot combine administrative and business roles!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={AcctUserShouldHaveAtLeastOneRole.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(AcctUserShouldHaveAtLeastOneRole ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setMessage("The user must have at least one role!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={AcctUserDoesNotHaveSuchRoleException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(AcctUserDoesNotHaveSuchRoleException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setMessage("The user does not have a role!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={UserAdminTryToRemoveHimselfException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(UserAdminTryToRemoveHimselfException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setMessage("Can't remove ADMINISTRATOR role!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={AcctUserNotFoundException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(AcctUserNotFoundException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(NOT_FOUND.value());
+        exceptionMessageResponse.setError("Not Found");
+        exceptionMessageResponse.setMessage("User not found!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), NOT_FOUND, request);
+    }
 
     @ExceptionHandler(value={DataIntegrityViolationException.class})
     @ResponseBody

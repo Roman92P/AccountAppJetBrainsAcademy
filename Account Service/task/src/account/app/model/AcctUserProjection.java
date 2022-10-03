@@ -1,5 +1,7 @@
 package account.app.model;
 
+import java.util.List;
+
 public interface AcctUserProjection {
 
      Long getId();
@@ -9,4 +11,6 @@ public interface AcctUserProjection {
      String getLastname();
 
      String getEmail();
+
+     List<ROLE> getRoles();
 }
