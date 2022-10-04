@@ -133,8 +133,19 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
                 break;
         }
         acctUser.setRoles(roles);
+        acctUser.setLocked(false);
         AcctUser userWithUpdatedRoles = userRepo.save(acctUser);
         return userWithUpdatedRoles;
+    }
+
+    @Override
+    public void lockAcctUser(String userEmail) {
+
+    }
+
+    @Override
+    public void unlockAcctUser(String userEmail) {
+
     }
 
     @Override

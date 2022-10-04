@@ -3,6 +3,7 @@ package account.app.admin;
 import account.app.exception.AcctUserNotFoundException;
 import account.app.model.AcctUser;
 import account.app.model.AcctUserProjection;
+import account.app.model.LockUnlockUserOperationModel;
 import account.app.model.UserRoleOperationDetails;
 import account.app.service.AcctUserService;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
@@ -57,5 +58,19 @@ public class AdministratorController {
                         .createProjection(AcctUserProjection.class, acctUser))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(allUsersProj);
+    }
+
+    @PutMapping(path = "/access", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Object> lockUnlockUsers(@RequestBody LockUnlockUserOperationModel lockUnlockUserOperationModel) {
+        switch (lockUnlockUserOperationModel.getOperation()) {
+            case UNLOCK:
+                acctUserService.unlockAcctUser(lockUnlockUserOperationModel.getUser());
+                break;
+            case LOCK:
+                acctUserService.lockAcctUser(lockUnlockUserOperationModel.getUser());
+                break;
+        }
+        return null;
     }
 }

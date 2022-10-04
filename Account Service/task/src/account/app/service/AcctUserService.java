@@ -23,4 +23,8 @@ public interface AcctUserService {
     String removeAcctUser(AcctUser acctUser);
 
     AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails);
+
+    void lockAcctUser(String userEmail);
+
+    void unlockAcctUser(String userEmail);
 }

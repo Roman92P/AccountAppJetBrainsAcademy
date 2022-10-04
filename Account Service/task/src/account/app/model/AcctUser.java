@@ -38,21 +38,22 @@ public class AcctUser implements UserDetails {
     @NotEmpty
     private String password;
 
-    //    @Enumerated(EnumType.STRING)
-//    @ManyToMany
-//    @JoinTable(
-//            name = "acctUser_role",
-//            joinColumns = @JoinColumn(name = "acctUser_id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id")
-//    )
-//    @ElementCollection
     @Lob
     private EnumSet<ROLE> roles;
-//    private List<ROLE> roles;
 
     public EnumSet<ROLE> getRoles() {
         List<ROLE> collect = roles.stream().sorted().collect(Collectors.toList());
         return EnumSet.copyOf(collect);
+    }
+
+    private boolean isLocked;
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.isLocked = locked;
     }
 
     public void setRoles(EnumSet<ROLE> roles) {
@@ -94,7 +95,7 @@ public class AcctUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isLocked;
     }
 
     @Override
