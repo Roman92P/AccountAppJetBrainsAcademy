@@ -19,4 +19,9 @@ public class SecurityEventServiceImpl implements SecurityEventService{
     public List<SecurityEvent> getAllSecurityEvents() {
         return securityEventRepo.findAll();
     }
+
+    @Override
+    public SecurityEvent createSecurityEvent(SecurityEvent securityEvent) {
+        return securityEventRepo.save(securityEvent);
+    }
 }

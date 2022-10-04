@@ -1,5 +1,6 @@
 package account.app.conf;
 
+import account.app.exception.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 //@EnableWebSecurity
@@ -28,6 +30,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
     }
 
 
@@ -53,7 +60,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/security/events").hasAuthority("ROLE_AUDITOR")
                 .and()
                 .exceptionHandling()
-                .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(403, "Access Denied!")).and()
+//                .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(403, "Access Denied!"))
+                .accessDeniedHandler(accessDeniedHandler())
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
     }

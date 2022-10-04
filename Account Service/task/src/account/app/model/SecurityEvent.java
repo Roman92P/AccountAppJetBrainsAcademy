@@ -2,6 +2,7 @@ package account.app.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ public class SecurityEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDate date;
+    private LocalDate date = LocalDate.now();
     @Enumerated(EnumType.STRING)
     private EventName action;
     private String subject;
@@ -24,12 +25,14 @@ public class SecurityEvent {
     public SecurityEvent() {
     }
 
-    public LocalDate getDate() {
-        return date;
+    public SecurityEvent(EventName action, String object, String path) {
+        this.action = action;
+        this.object = object;
+        this.path = path;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public LocalDate getDate() {
+        return date;
     }
 
     public EventName getAction() {
@@ -45,7 +48,8 @@ public class SecurityEvent {
     }
 
     public void setSubject(String subject) {
-        this.subject = subject;
+        String s = SecurityContextHolder.getContext().getAuthentication().getName() == null? "Anonymous" : SecurityContextHolder.getContext().getAuthentication().getName();
+        this.subject = s;
     }
 
     public String getObject() {

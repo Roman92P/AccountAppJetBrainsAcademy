@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -21,6 +22,8 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
 
     Logger logger = LogManager.getLogger(AcctUserServiceImpl.class);
 
+    private final SecurityEventService securityEventService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final AcctUserRepo userRepo;
@@ -29,7 +32,8 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
             "PasswordForMay", "PasswordForJune", "PasswordForJuly", "PasswordForAugust",
             "PasswordForSeptember", "PasswordForOctober", "PasswordForNovember", "PasswordForDecember"};
 
-    public AcctUserServiceImpl(PasswordEncoder passwordEncoder, AcctUserRepo userRepo) {
+    public AcctUserServiceImpl(SecurityEventService securityEventService, PasswordEncoder passwordEncoder, AcctUserRepo userRepo) {
+        this.securityEventService = securityEventService;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
     }
@@ -60,7 +64,9 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
             user.setRoles(EnumSet.of(ROLE.ROLE_USER));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        AcctUser savedUser = userRepo.save(user);
+        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CREATE_USER, user.getName(), requestPath));
+        return savedUser;
     }
 
     @Override
@@ -70,6 +76,7 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
+        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CHANGE_PASSWORD, user.getName(), contextPath));
     }
 
     @Override
