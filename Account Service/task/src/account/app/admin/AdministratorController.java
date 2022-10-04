@@ -63,14 +63,9 @@ public class AdministratorController {
     @PutMapping(path = "/access", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Object> lockUnlockUsers(@RequestBody LockUnlockUserOperationModel lockUnlockUserOperationModel) {
-        switch (lockUnlockUserOperationModel.getOperation()) {
-            case UNLOCK:
-                acctUserService.unlockAcctUser(lockUnlockUserOperationModel.getUser());
-                break;
-            case LOCK:
-                acctUserService.lockAcctUser(lockUnlockUserOperationModel.getUser());
-                break;
-        }
-        return null;
+        acctUserService.lockUnlockAcctUser(lockUnlockUserOperationModel.getUser(), lockUnlockUserOperationModel.getOperation());
+        return ResponseEntity.ok(String.format("{\n" +
+                "    \"status\": \"User %s %s\\ed!\"\n" +
+                "}", lockUnlockUserOperationModel.getUser(), lockUnlockUserOperationModel.getOperation().name().toLowerCase()));
     }
 }

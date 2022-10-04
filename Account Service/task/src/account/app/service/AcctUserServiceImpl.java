@@ -1,10 +1,7 @@
 package account.app.service;
 
 import account.app.exception.*;
-import account.app.model.AcctUser;
-import account.app.model.Operation;
-import account.app.model.ROLE;
-import account.app.model.UserRoleOperationDetails;
+import account.app.model.*;
 import account.app.ropository.AcctUserRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -139,13 +136,15 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
     }
 
     @Override
-    public void lockAcctUser(String userEmail) {
-
-    }
-
-    @Override
-    public void unlockAcctUser(String userEmail) {
-
+    public void lockUnlockAcctUser(String userEmail, UserOperation operation) {
+        Optional<AcctUser> byEmail = userRepo.findByEmail(userEmail);
+        if (byEmail.isEmpty()) {
+            throw new AcctUserNotFoundException();
+        }
+        AcctUser acctUser = byEmail.get();
+        boolean lockUnlockOption = operation.equals(UserOperation.LOCK);
+        acctUser.setLocked(lockUnlockOption);
+        userRepo.save(acctUser);
     }
 
     @Override

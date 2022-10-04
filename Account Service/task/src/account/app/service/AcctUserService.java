@@ -3,6 +3,7 @@ package account.app.service;
 import account.app.exception.PasswordWasHackedException;
 import account.app.exception.UserExistException;
 import account.app.model.AcctUser;
+import account.app.model.UserOperation;
 import account.app.model.UserRoleOperationDetails;
 
 import java.util.List;
@@ -24,7 +25,6 @@ public interface AcctUserService {
 
     AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails);
 
-    void lockAcctUser(String userEmail);
+    void lockUnlockAcctUser(String userEmail, UserOperation operation);
 
-    void unlockAcctUser(String userEmail);
 }

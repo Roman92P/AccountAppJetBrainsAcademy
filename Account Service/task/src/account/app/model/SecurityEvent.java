@@ -1,5 +1,6 @@
 package account.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 @Entity
 public class SecurityEvent {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

@@ -6,12 +6,12 @@ import java.util.EnumSet;
 
 public enum ROLE  {
     ROLE_ACCOUNTANT,
-    ROLE_AUDIT,
+    ROLE_AUDITOR,
     ROLE_ANONYMOUS,
     ROLE_ADMINISTRATOR,
     ROLE_USER;
     public static EnumSet<ROLE> getBusinessGroup(){
-        return EnumSet.of(ROLE_ACCOUNTANT, ROLE_AUDIT, ROLE_ANONYMOUS, ROLE_USER);
+        return EnumSet.of(ROLE_ACCOUNTANT, ROLE_AUDITOR, ROLE_ANONYMOUS, ROLE_USER);
     }
     public static EnumSet<ROLE> getNonBusinessGroup(){
         return EnumSet.of(ROLE_ADMINISTRATOR);

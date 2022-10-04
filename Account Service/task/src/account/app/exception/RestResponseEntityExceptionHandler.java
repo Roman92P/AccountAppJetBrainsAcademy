@@ -25,6 +25,19 @@ import static org.springframework.http.HttpStatus.*;
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(value={CantLockAdminException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(CantLockAdminException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("Can't lock the ADMINISTRATOR!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(value={TryingToAddAdminRoleException.class})
     @ResponseBody
     protected ResponseEntity<Object> handleDateException(TryingToAddAdminRoleException ex, WebRequest request) {
