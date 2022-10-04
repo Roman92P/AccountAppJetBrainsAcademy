@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,11 +20,36 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(value={TryingToAddAdminRoleException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(TryingToAddAdminRoleException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(BAD_REQUEST.value());
+        exceptionMessageResponse.setError("Bad Request");
+        exceptionMessageResponse.setMessage("The user cannot combine administrative and business roles!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value={EnumNotFoundException.class})
+    @ResponseBody
+    protected ResponseEntity<Object> handleDateException(EnumNotFoundException ex, WebRequest request) {
+        ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
+        exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
+        exceptionMessageResponse.setStatus(NOT_FOUND.value());
+        exceptionMessageResponse.setError("Not Found");
+        exceptionMessageResponse.setMessage("Role not found!");
+        exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
+        return handleExceptionInternal(ex, exceptionMessageResponse,
+                new HttpHeaders(), NOT_FOUND, request);
+    }
 
     @ExceptionHandler(value={AcctServiceAdminCantHaveBusinessRolesException.class})
     @ResponseBody
@@ -31,7 +57,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
         exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
         exceptionMessageResponse.setStatus(BAD_REQUEST.value());
-        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setError("Bad Request");
         exceptionMessageResponse.setMessage("The user cannot combine administrative and business roles!");
         exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
         return handleExceptionInternal(ex, exceptionMessageResponse,
@@ -44,7 +70,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
         exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
         exceptionMessageResponse.setStatus(BAD_REQUEST.value());
-        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setError("Bad Request");
         exceptionMessageResponse.setMessage("The user must have at least one role!");
         exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
         return handleExceptionInternal(ex, exceptionMessageResponse,
@@ -57,7 +83,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
         exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
         exceptionMessageResponse.setStatus(BAD_REQUEST.value());
-        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setError("Bad Request");
         exceptionMessageResponse.setMessage("The user does not have a role!");
         exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
         return handleExceptionInternal(ex, exceptionMessageResponse,
@@ -70,7 +96,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ExceptionMessageResponse exceptionMessageResponse = new ExceptionMessageResponse();
         exceptionMessageResponse.setTimestamp(String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.MAX)));
         exceptionMessageResponse.setStatus(BAD_REQUEST.value());
-        exceptionMessageResponse.setError("Bad request");
+        exceptionMessageResponse.setError("Bad Request");
         exceptionMessageResponse.setMessage("Can't remove ADMINISTRATOR role!");
         exceptionMessageResponse.setPath(((ServletWebRequest)request).getRequest().getRequestURI().toString());
         return handleExceptionInternal(ex, exceptionMessageResponse,

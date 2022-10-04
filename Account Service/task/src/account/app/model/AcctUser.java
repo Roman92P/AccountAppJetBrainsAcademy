@@ -11,10 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -40,21 +38,24 @@ public class AcctUser implements UserDetails {
     @NotEmpty
     private String password;
 
-//    @Enumerated(EnumType.STRING)
+    //    @Enumerated(EnumType.STRING)
 //    @ManyToMany
 //    @JoinTable(
 //            name = "acctUser_role",
 //            joinColumns = @JoinColumn(name = "acctUser_id"),
 //            inverseJoinColumns = @JoinColumn(name = "role_id")
 //    )
-    @ElementCollection
-    private List<ROLE> roles;
+//    @ElementCollection
+    @Lob
+    private EnumSet<ROLE> roles;
+//    private List<ROLE> roles;
 
-    public List<ROLE> getRoles() {
-        return roles;
+    public EnumSet<ROLE> getRoles() {
+        List<ROLE> collect = roles.stream().sorted().collect(Collectors.toList());
+        return EnumSet.copyOf(collect);
     }
 
-    public void setRoles(List<ROLE> roles) {
+    public void setRoles(EnumSet<ROLE> roles) {
         this.roles = roles;
     }
 
@@ -83,7 +84,7 @@ public class AcctUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return email;
     }
 
     @Override

@@ -47,7 +47,7 @@ public class AuthenticationController {
     @ResponseBody
     public ResponseEntity<Object> userChangePassword(@Valid @RequestBody UserNewPassword userNewPassword, Principal principal, HttpServletRequest request) throws UserExistException, PasswordWasHackedException, UserChangesPasswordSamePasswordException {
         String loggedUserName = principal.getName();
-        AcctUser acctUserByName = userService.getAcctUserByName(loggedUserName);
+        AcctUser acctUserByName = userService.getUserByEmail(loggedUserName).get();
         logger.warn("Logged user changing pswd: " + acctUserByName);
         if (encoder.matches(userNewPassword.getNew_password(), acctUserByName.getPassword())) {
             throw new UserChangesPasswordSamePasswordException(request.getContextPath());

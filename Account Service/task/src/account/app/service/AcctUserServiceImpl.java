@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,7 +50,7 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
 
     @Override
     public AcctUser saveNewUser(AcctUser user, String requestPath) throws UserExistException, PasswordWasHackedException {
-        logger.warn("Checking if user exist: " + userRepo.existsAcctUserByEmail(user.getEmail()));
+        logger.info("Checking if user exist: " + userRepo.existsAcctUserByEmail(user.getEmail()));
         if (userRepo.existsAcctUserByEmail(user.getEmail().toLowerCase())) {
             throw new UserExistException();
         }
@@ -57,9 +58,9 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
             throw new PasswordWasHackedException(requestPath);
         }
         if (userRepo.count() == 0) {
-            user.setRoles(Arrays.asList(ROLE.ROLE_ADMINISTRATOR));
+            user.setRoles(EnumSet.of(ROLE.ROLE_ADMINISTRATOR));
         } else if (userRepo.count() > 0) {
-            user.setRoles(Arrays.asList(ROLE.ROLE_USER));
+            user.setRoles(EnumSet.of(ROLE.ROLE_USER));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
@@ -90,24 +91,50 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
 
     @Override
     public AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails) {
-        Optional<AcctUser> byEmail = userRepo.findByEmail(userRoleOperationDetails.getUser());
+        Optional<AcctUser> byEmail = userRepo.findByEmail(userRoleOperationDetails.getUser().toLowerCase());
+        ROLE roleFromRequest;
+        try {
+            roleFromRequest = ROLE.valueOf(userRoleOperationDetails.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new EnumNotFoundException();
+        }
+
         if (byEmail.isEmpty()) {
             throw new AcctUserNotFoundException();
         }
         AcctUser acctUser = byEmail.get();
-        if (!acctUser.getRoles().contains(userRoleOperationDetails.getRole()) && userRoleOperationDetails.getOperation().equals(Operation.REMOVE)) {
+        if (!acctUser.getRoles().contains(roleFromRequest)
+                && userRoleOperationDetails.getOperation().equals(Operation.REMOVE)) {
             throw new AcctUserDoesNotHaveSuchRoleException();
+        }
+        if (userRoleOperationDetails.getOperation().equals(Operation.REMOVE)
+                && roleFromRequest.equals(ROLE.ROLE_ADMINISTRATOR)) {
+            throw new UserAdminTryToRemoveHimselfException();
         }
         if (acctUser.getRoles().size() == 1 && userRoleOperationDetails.getOperation().equals(Operation.REMOVE)) {
             throw new AcctUserShouldHaveAtLeastOneRole();
         }
-        if (userRoleOperationDetails.getOperation().equals(Operation.REMOVE) && userRoleOperationDetails.getRole().equals(ROLE.ROLE_ADMINISTRATOR)) {
-            throw new UserAdminTryToRemoveHimselfException();
-        }
-        if (userRoleOperationDetails.getOperation().equals(Operation.GRANT) && acctUser.getRoles().contains(ROLE.ROLE_ADMINISTRATOR)) {
+        if (userRoleOperationDetails.getOperation().equals(Operation.GRANT)
+                && acctUser.getRoles().contains(ROLE.ROLE_ADMINISTRATOR)) {
             throw new AcctServiceAdminCantHaveBusinessRolesException();
         }
-            return null;
+        if ( roleFromRequest.equals(ROLE.ROLE_ADMINISTRATOR)) {
+            throw new TryingToAddAdminRoleException();
+        }
+
+        EnumSet<ROLE> roles = acctUser.getRoles();
+        String roleToBeAddedOrRemoved = userRoleOperationDetails.getRole();
+        switch (userRoleOperationDetails.getOperation()) {
+            case REMOVE:
+                roles.remove(ROLE.valueOf(userRoleOperationDetails.getRole()));
+                break;
+            case GRANT:
+                roles.add(ROLE.valueOf(userRoleOperationDetails.getRole()));
+                break;
+        }
+        acctUser.setRoles(roles);
+        AcctUser userWithUpdatedRoles = userRepo.save(acctUser);
+        return userWithUpdatedRoles;
     }
 
     @Override

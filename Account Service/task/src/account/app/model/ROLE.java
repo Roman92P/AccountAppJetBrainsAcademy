@@ -2,14 +2,9 @@ package account.app.model;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public enum ROLE implements GrantedAuthority {
-    ROLE_ANONYMOUS,
-    ROLE_USER,
+public enum ROLE  {
     ROLE_ACCOUNTANT,
-    ROLE_ADMINISTRATOR;
-
-    @Override
-    public String getAuthority() {
-        return name();
-    }
+    ROLE_ANONYMOUS,
+    ROLE_ADMINISTRATOR,
+    ROLE_USER;
 }

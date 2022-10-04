@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,12 +29,12 @@ public class AdministratorController {
 
     @PutMapping(path = "/role", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Object> setsTheRoles(@Valid @RequestBody UserRoleOperationDetails userRoleOperationDetails) {
-       AcctUser acctUser = acctUserService.changeUserRoles(userRoleOperationDetails);
+    public ResponseEntity<Object> setsTheRoles(@RequestBody UserRoleOperationDetails userRoleOperationDetails) {
+        AcctUser acctUser = acctUserService.changeUserRoles(userRoleOperationDetails);
         return ResponseEntity.ok(spelAwareProxyProjectionFactory.createProjection(AcctUserProjection.class, acctUser));
     }
 
-    @DeleteMapping(path ="/{user email}" ,consumes = "application/json", produces = "application/json")
+    @DeleteMapping(path = "/{user email}", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Object> deletesUsers(@PathVariable(name = "user email") String email, HttpServletRequest request) {
         Optional<AcctUser> userByEmail = acctUserService.getUserByEmail(email);
@@ -49,7 +48,7 @@ public class AdministratorController {
                 "}", removedUserEmail));
     }
 
-    @GetMapping (produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ResponseBody
     public ResponseEntity<Object> obtainUsersInfo() {
         List<AcctUser> allServiceUsers = acctUserService.getAllAcctUser();
@@ -57,6 +56,6 @@ public class AdministratorController {
                 .map(acctUser -> spelAwareProxyProjectionFactory
                         .createProjection(AcctUserProjection.class, acctUser))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(allServiceUsers);
+        return ResponseEntity.ok(allUsersProj);
     }
 }
