@@ -5,13 +5,14 @@ import account.app.model.*;
 import account.app.ropository.AcctUserRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -22,7 +23,8 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
 
     Logger logger = LogManager.getLogger(AcctUserServiceImpl.class);
 
-    private final SecurityEventService securityEventService;
+    @Autowired
+    SecurityEventService securityEventService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -32,8 +34,7 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
             "PasswordForMay", "PasswordForJune", "PasswordForJuly", "PasswordForAugust",
             "PasswordForSeptember", "PasswordForOctober", "PasswordForNovember", "PasswordForDecember"};
 
-    public AcctUserServiceImpl(SecurityEventService securityEventService, PasswordEncoder passwordEncoder, AcctUserRepo userRepo) {
-        this.securityEventService = securityEventService;
+    public AcctUserServiceImpl(PasswordEncoder passwordEncoder, AcctUserRepo userRepo) {
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
     }
@@ -65,7 +66,8 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         AcctUser savedUser = userRepo.save(user);
-        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CREATE_USER, user.getName(), requestPath));
+        Optional<AcctUser> byEmail = userRepo.findByEmail(user.getEmail().toLowerCase());
+        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CREATE_USER, "Anonymous", byEmail.get().getEmail(), requestPath));
         return savedUser;
     }
 
@@ -76,7 +78,7 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
-        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CHANGE_PASSWORD, user.getName(), contextPath));
+        securityEventService.createSecurityEvent(new SecurityEvent(EventName.CHANGE_PASSWORD, user.getEmail(), user.getEmail(), contextPath));
     }
 
     @Override
@@ -85,16 +87,17 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
     }
 
     @Override
-    public String removeAcctUser(AcctUser acctUser) {
+    public String removeAcctUser(AcctUser acctUser, HttpServletRequest request) {
         if (acctUser.getRoles().contains(ROLE.ROLE_ADMINISTRATOR)) {
             throw new UserAdminTryToRemoveHimselfException();
         }
         userRepo.delete(acctUser);
+        securityEventService.createSecurityEvent(new SecurityEvent(EventName.DELETE_USER, request.getRemoteUser(), acctUser.getEmail(), request.getContextPath()));
         return acctUser.getEmail();
     }
 
     @Override
-    public AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails) {
+    public AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails, HttpServletRequest request) {
         Optional<AcctUser> byEmail = userRepo.findByEmail(userRoleOperationDetails.getUser().toLowerCase());
         ROLE roleFromRequest;
         try {
@@ -131,9 +134,15 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
         switch (userRoleOperationDetails.getOperation()) {
             case REMOVE:
                 roles.remove(ROLE.valueOf(userRoleOperationDetails.getRole()));
+                securityEventService.createSecurityEvent(
+                        new SecurityEvent(EventName.REMOVE_ROLE, request.getRemoteUser(), String.format("Remove role %s from %s",
+                                userRoleOperationDetails.getRole().substring("ROLE_".length()).trim(),userRoleOperationDetails.getUser()), request.getServletPath()));
                 break;
             case GRANT:
                 roles.add(ROLE.valueOf(userRoleOperationDetails.getRole()));
+                securityEventService.createSecurityEvent(
+                        new SecurityEvent(EventName.GRANT_ROLE, request.getRemoteUser(), String.format("Grant role %s to %s",
+                                userRoleOperationDetails.getRole().substring("ROLE_".length()).trim(),userRoleOperationDetails.getUser()), request.getServletPath()));
                 break;
         }
         acctUser.setRoles(roles);
@@ -143,15 +152,28 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
     }
 
     @Override
-    public void lockUnlockAcctUser(String userEmail, UserOperation operation) {
+    public void lockUnlockAcctUser(String userEmail, UserOperation operation, HttpServletRequest request, String subject) {
         Optional<AcctUser> byEmail = userRepo.findByEmail(userEmail);
         if (byEmail.isEmpty()) {
             throw new AcctUserNotFoundException();
         }
         AcctUser acctUser = byEmail.get();
+        if (acctUser.getRoles().contains(ROLE.ROLE_ADMINISTRATOR)) {
+            throw new CantLockAdminException();
+        }
         boolean lockUnlockOption = operation.equals(UserOperation.LOCK);
         acctUser.setLocked(lockUnlockOption);
         userRepo.save(acctUser);
+        if (lockUnlockOption) {
+            securityEventService.createSecurityEvent(
+                    new SecurityEvent(EventName.LOCK_USER, subject, String.format("Lock user %s",
+                            userEmail), request.getServletPath()));
+        } else {
+            securityEventService.createSecurityEvent(
+                    new SecurityEvent(EventName.UNLOCK_USER, subject, String.format("Unlock user %s",
+                            userEmail), request.getServletPath()));
+        }
+
     }
 
     @Override
@@ -160,7 +182,7 @@ public class AcctUserServiceImpl implements AcctUserService, UserDetailsService 
         if (byUsername.isPresent()) {
             return byUsername.get();
         } else {
-            throw new UsernameNotFoundException(String.format("Username[%s] not found"));
+            throw new UsernameNotFoundException(String.format("Username[%s] not found",username));
         }
     }
 }

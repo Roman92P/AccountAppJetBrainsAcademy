@@ -6,6 +6,7 @@ import account.app.model.AcctUser;
 import account.app.model.UserOperation;
 import account.app.model.UserRoleOperationDetails;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +22,10 @@ public interface AcctUserService {
 
     List<AcctUser> getAllAcctUser();
 
-    String removeAcctUser(AcctUser acctUser);
+    String removeAcctUser(AcctUser acctUser, HttpServletRequest request);
 
-    AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails);
+    AcctUser changeUserRoles(UserRoleOperationDetails userRoleOperationDetails, HttpServletRequest request);
 
-    void lockUnlockAcctUser(String userEmail, UserOperation operation);
+    void lockUnlockAcctUser(String userEmail, UserOperation operation, HttpServletRequest request, String subject);
 
 }

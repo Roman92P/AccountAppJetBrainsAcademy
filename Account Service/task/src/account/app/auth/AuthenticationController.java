@@ -38,7 +38,7 @@ public class AuthenticationController {
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public ResponseEntity<AcctUserProjection> userSignup(@Valid @RequestBody AcctUser acctUser, HttpServletRequest request) throws UserExistException, PasswordWasHackedException {
-        AcctUser savedUser = userService.saveNewUser(acctUser, request.getContextPath());
+        AcctUser savedUser = userService.saveNewUser(acctUser, request.getServletPath());
         AcctUserProjection user = spelAwareProxyProjectionFactory.createProjection(AcctUserProjection.class, savedUser);
         return ResponseEntity.ok(user);
     }
@@ -53,7 +53,7 @@ public class AuthenticationController {
             throw new UserChangesPasswordSamePasswordException(request.getContextPath());
         }
         acctUserByName.setPassword(userNewPassword.getNew_password());
-        userService.updateUser(acctUserByName, request.getContextPath());
+        userService.updateUser(acctUserByName, request.getServletPath());
         return ResponseEntity.ok(new ChangePasswordResponse(acctUserByName.getEmail()));
     }
 

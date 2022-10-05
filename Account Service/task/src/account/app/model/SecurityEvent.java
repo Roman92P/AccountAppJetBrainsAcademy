@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -15,7 +16,8 @@ public class SecurityEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDate date = LocalDate.now();
+    @JsonIgnore
+    private LocalDateTime date = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     private EventName action;
     private String subject;
@@ -25,13 +27,14 @@ public class SecurityEvent {
     public SecurityEvent() {
     }
 
-    public SecurityEvent(EventName action, String object, String path) {
+    public SecurityEvent(EventName action, String subject, String object, String path) {
         this.action = action;
+        this.subject = subject;
         this.object = object;
         this.path = path;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 

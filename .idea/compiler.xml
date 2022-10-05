@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+    </annotationProcessing>
+    <bytecodeTargetLevel target="17">
+      <module name="Account_Service.Account_Service-task-build-classes-java.main" target="11" />
+      <module name="Account_Service.Account_Service-task-build-generated-sources-annotationProcessor-java.main" target="11" />
+      <module name="Account_Service.Account_Service-task-build-generated-sources-headers-java.main" target="11" />
+      <module name="Account_Service.Account_Service-task-build-reports-tests.main" target="11" />
+      <module name="Account_Service.Account_Service-task-build-test-results.main" target="11" />
+      <module name="Account_Service.Account_Service-task-build-tmp.main" target="11" />
+      <module name="Account_Service.Account_Service-task.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Check_IP_address.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Check_the_clock_time.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Check_the_date.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Ignoring_spaces.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Safe_password.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Theory.main" target="11" />
+      <module name="Account_Service.Topics-Regexes_in_programs-Vehicle_registration_number.main" target="11" />
+      <module name="Account_Service.Topics-Singleton-A_singleton_has.main" target="11" />
+      <module name="Account_Service.Topics-Singleton-Complete_the_eager_singleton.main" target="11" />
+      <module name="Account_Service.Topics-Singleton-Criticism.main" target="11" />
+      <module name="Account_Service.Topics-Singleton-Given_a_class_named_A.main" target="11" />
+      <module name="Account_Service.Topics-Singleton-Theory.main" target="11" />
+      <module name="Account_Service.util.main" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -22,7 +22,7 @@ public class UserRoleOperationDetails implements Serializable {
 
 
     public String getUser() {
-        return user;
+        return user.toLowerCase();
     }
 
     public void setUser(String user) {

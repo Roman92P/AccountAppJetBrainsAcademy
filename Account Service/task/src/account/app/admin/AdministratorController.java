@@ -8,6 +8,8 @@ import account.app.model.UserRoleOperationDetails;
 import account.app.service.AcctUserService;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,8 +32,8 @@ public class AdministratorController {
 
     @PutMapping(path = "/role", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Object> setsTheRoles(@RequestBody UserRoleOperationDetails userRoleOperationDetails) {
-        AcctUser acctUser = acctUserService.changeUserRoles(userRoleOperationDetails);
+    public ResponseEntity<Object> setsTheRoles(@RequestBody UserRoleOperationDetails userRoleOperationDetails, HttpServletRequest request) {
+        AcctUser acctUser = acctUserService.changeUserRoles(userRoleOperationDetails, request);
         return ResponseEntity.ok(spelAwareProxyProjectionFactory.createProjection(AcctUserProjection.class, acctUser));
     }
 
@@ -42,7 +44,7 @@ public class AdministratorController {
         if (userByEmail.isEmpty()) {
             throw new AcctUserNotFoundException();
         }
-        String removedUserEmail = acctUserService.removeAcctUser(userByEmail.get());
+        String removedUserEmail = acctUserService.removeAcctUser(userByEmail.get(), request);
         return ResponseEntity.ok(String.format("{\n" +
                 "   \"user\": \"%s\",\n" +
                 "   \"status\": \"Deleted successfully!\"\n" +
@@ -62,10 +64,11 @@ public class AdministratorController {
 
     @PutMapping(path = "/access", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Object> lockUnlockUsers(@RequestBody LockUnlockUserOperationModel lockUnlockUserOperationModel) {
-        acctUserService.lockUnlockAcctUser(lockUnlockUserOperationModel.getUser(), lockUnlockUserOperationModel.getOperation());
+    public ResponseEntity<Object> lockUnlockUsers(@RequestBody LockUnlockUserOperationModel lockUnlockUserOperationModel, HttpServletRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        String adminName = userDetails.getUsername();
+        acctUserService.lockUnlockAcctUser(lockUnlockUserOperationModel.getUser().toLowerCase(), lockUnlockUserOperationModel.getOperation(), request, adminName);
         return ResponseEntity.ok(String.format("{\n" +
-                "    \"status\": \"User %s %s\\ed!\"\n" +
-                "}", lockUnlockUserOperationModel.getUser(), lockUnlockUserOperationModel.getOperation().name().toLowerCase()));
+                "    \"status\": \"User %s %sed!\"\n" +
+                "}", lockUnlockUserOperationModel.getUser().toLowerCase(), lockUnlockUserOperationModel.getOperation().name().toLowerCase()));
     }
 }

@@ -69,7 +69,7 @@ public class AcctUser implements UserDetails {
     }
 
     public String getEmail() {
-        return email;
+        return email.toLowerCase();
     }
 
     @Override
