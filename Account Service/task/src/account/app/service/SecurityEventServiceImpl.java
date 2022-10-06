@@ -51,7 +51,12 @@ public class SecurityEventServiceImpl implements SecurityEventService {
             } else {
                 userFailLoginCounterService.increaseUserLoginFailureCount(userFailLoginCounter);
             }
-        } else {
+        } else if (userPrevLoginFails.isPresent() &&
+                acctUserService.getUserByEmail(userPrevLoginFails.get().getUserEmail()
+                        .toLowerCase()).get().getRoles().contains(ROLE.ROLE_ADMINISTRATOR)) {
+            userFailLoginCounterService.increaseUserLoginFailureCount(userPrevLoginFails.get());
+        }
+         else {
             UserFailLoginCounter userFailLoginCounter = userFailLoginCounterService.saveNewLoginCounter(new UserFailLoginCounter(1, securityEvent.getSubject()));
         }
         return saved;
